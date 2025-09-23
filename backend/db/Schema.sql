@@ -1,70 +1,92 @@
--- Outlets table 
-CREATE TABLE outlets (
-    id SERIAL PRIMARY KEY,
-    date DATE NOT NULL,
-    outlet_id VARCHAR(50) NOT NULL,
-    product_id VARCHAR(50) NOT NULL,
-    outlet_category VARCHAR(50),
-    region VARCHAR(50),
-    bd_season VARCHAR(20),
-    is_weekend BOOLEAN,
-    event TEXT,
-    economic_zone VARCHAR(50),
-    next_7_days_demand INT CHECK (next_7_days_demand >= 0)
-);
 
--- Warehouses table
+-- Stores warehouse information
+-- Static warehouse info
 CREATE TABLE warehouses (
-    id SERIAL PRIMARY KEY,
-    date DATE NOT NULL,
-    region VARCHAR(50),
-    warehouse_id VARCHAR(50) NOT NULL,
-    product_id VARCHAR(50) NOT NULL,
-    bd_season VARCHAR(20),
-    is_weekend BOOLEAN,
-    event TEXT,
-    current_inventory INT CHECK (current_inventory >= 0),
-    inbound_shipment INT CHECK (inbound_shipment >= 0),
-    supplier_reliability FLOAT CHECK (supplier_reliability >= 0 AND supplier_reliability <= 1),
+    warehouse_id VARCHAR(50) PRIMARY KEY,        -- Unique warehouse identifier
+    region VARCHAR(50) NOT NULL,
+    max_storage_capacity INT CHECK (max_storage_capacity >= 0),
+    supplier_reliability FLOAT CHECK (supplier_reliability BETWEEN 0 AND 1),
     supplier_capacity_index FLOAT,
     supplier_lead_time INT,
-    allocation_ratio FLOAT,
     disruption_index FLOAT,
     transport_cost_index FLOAT,
     transport_capacity_factor FLOAT,
-    max_storage_capacity INT CHECK (max_storage_capacity >= 0),
-    optimal_inventory_level INT CHECK (optimal_inventory_level >= 0),
-    feasible_max_supply INT CHECK (feasible_max_supply >= 0)
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
---Allocations (negotiation output)
-CREATE TABLE allocations (
-    id SERIAL PRIMARY KEY,
-    allocation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+-- Dynamic warehouse info per date or event
+CREATE TABLE warehouse_snapshots (
+    snapshot_id SERIAL PRIMARY KEY,
+    warehouse_id VARCHAR(50) NOT NULL REFERENCES warehouses(warehouse_id) ON DELETE CASCADE,
+    date DATE NOT NULL,
+    product_id VARCHAR(50) NOT NULL,               -- product for which inventory is tracked
+    current_inventory INT CHECK (current_inventory >= 0),
+    inbound_shipment INT CHECK (inbound_shipment >= 0),
+    bd_season VARCHAR(20),
+    is_weekend BOOLEAN,
+    event TEXT,
+    optimal_inventory_level INT CHECK (optimal_inventory_level >= 0),
+    feasible_max_supply INT CHECK (feasible_max_supply >= 0),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+
+-- Stores outlet information (initially 4)
+
+CREATE TABLE outlets (
+    outlet_id VARCHAR(50) PRIMARY KEY,
+    outlet_name TEXT,
+    outlet_category VARCHAR(50),
+    region VARCHAR(50),
+    economic_zone VARCHAR(50),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Stores product information
+
+CREATE TABLE products (
+    product_id VARCHAR(50) PRIMARY KEY,
+    product_name TEXT NOT NULL,
+    unit_of_measure VARCHAR(20),
+    base_price FLOAT
+);
+
+--an outlet requests items from the warehouse.
+
+CREATE TABLE allocation_requests (
+    request_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     outlet_id VARCHAR(50) NOT NULL REFERENCES outlets(outlet_id),
     warehouse_id VARCHAR(50) NOT NULL REFERENCES warehouses(warehouse_id),
-    product_id VARCHAR(50) NOT NULL,
-    allocated_quantity INT CHECK (allocated_quantity >= 0),
-    transportation_duration INT CHECK (transportation_duration >= 0),
-    reasoning TEXT, -- why this allocation was made (from AI explanation)
-    CONSTRAINT unique_allocation UNIQUE (allocation_date, outlet_id, warehouse_id, product_id)
+    request_date DATE NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending', -- pending | approved | rejected
+    event TEXT,  -- e.g. festival demand, promotion, etc.
+    is_weekend BOOLEAN,
+    bd_season VARCHAR(20),
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
---  Deliveries (actual shipments)
-CREATE TABLE deliveries (
+-- Each request may have multiple products requested
+
+CREATE TABLE allocation_request_items (
     id SERIAL PRIMARY KEY,
-    allocation_id INT REFERENCES allocations(id) ON DELETE CASCADE,
-    delivery_date DATE,
-    expected_arrival_date DATE,
-    actual_arrival_date DATE,
-    transport_mode VARCHAR(30), -- truck, rail, air
-    transport_cost NUMERIC(10,2),
-    delivered_quantity INT CHECK (delivered_quantity >= 0),
-    status VARCHAR(30) DEFAULT 'scheduled' -- scheduled, in_transit, delivered, delayed
+    request_id UUID NOT NULL REFERENCES allocation_requests(request_id) ON DELETE CASCADE,
+    product_id VARCHAR(50) NOT NULL REFERENCES products(product_id),
+    requested_quantity INT CHECK (requested_quantity >= 0),
+    next_7_days_demand INT CHECK (next_7_days_demand >= 0)
+);
+
+-- Stores allocation decisions made by the agent after negotiation and optimization
+
+CREATE TABLE allocations (
+    id SERIAL PRIMARY KEY,
+    request_id UUID NOT NULL REFERENCES allocation_requests(request_id) ON DELETE CASCADE,
+    product_id VARCHAR(50) NOT NULL REFERENCES products(product_id),
+    allocated_quantity INT CHECK (allocated_quantity >= 0),
+    transport_cost FLOAT,
+    lead_time INT,
+    negotiation_log JSONB, -- full reasoning trace from LangGraph
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
 
-CREATE INDEX idx_outlet_product ON outlets(product_id);
-CREATE INDEX idx_outlet_region ON outlets(region);
-CREATE INDEX idx_warehouse_product ON warehouses(product_id);
-CREATE INDEX idx_warehouse_region ON warehouses(region);
+
