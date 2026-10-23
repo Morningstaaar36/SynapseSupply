@@ -4,6 +4,8 @@
 
 # SynapseSupply
 
+Third prize at the BUP Hackathon. Built as a team project; the original repository is [Suprio85/SynapseSupply](https://github.com/Suprio85/SynapseSupply).
+
 Retail outlets in Bangladesh run out of stock during Eid and sit on excess stock in the monsoon, while the central warehouse has to decide how to split limited supply between them. SynapseSupply is a pipeline for that decision. It forecasts each outlet's demand for the next seven days, estimates what the warehouse can realistically supply, and defines the PostgreSQL schema that allocation requests and decisions are recorded in.
 
 The forecasting models and the database layer are working. The negotiation agents and the allocation optimizer that will sit on top of them are the next piece (see [Status](#status)).
@@ -97,3 +99,10 @@ python utils/supply_chain_data_generator.py --out-dir .
 ## Stack
 
 PyTorch, scikit-learn, pandas and NumPy for the models; PostgreSQL on Supabase for storage; LangGraph and PuLP for the coordination layer.
+
+## Team
+
+Built by a team at the BUP Hackathon, where it won third prize.
+
+- **Suprio Paul** ([@Suprio85](https://github.com/Suprio85)): original author. Started the repository and wrote the PostgreSQL schema, the Supabase access layer and the project structure.
+- **[@Morningstaaar36](https://github.com/Morningstaaar36)**: data generator and the outlet and warehouse forecasting models in the notebook.
