@@ -1,26 +1,27 @@
 import os
+from functools import lru_cache
+
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
 load_dotenv()
 
-url: str = os.getenv("SUPABASE_URL")
-key: str = os.getenv("SUPABASE_KEY")
-supabase: Client = create_client(url, key)
 
-# connect to the database
-def get_db():
-    return supabase
+@lru_cache(maxsize=1)
+def get_db() -> Client:
+    """Return a shared Supabase client, built from SUPABASE_URL / SUPABASE_KEY."""
+    url = os.getenv("SUPABASE_URL")
+    key = os.getenv("SUPABASE_KEY")
+    if not url or not key:
+        raise RuntimeError("SUPABASE_URL and SUPABASE_KEY must be set (see .env.example)")
+    return create_client(url, key)
 
-# function to see the connection
-def test_connection():
+
+def test_connection() -> bool:
     try:
-        response = supabase.table("outlets").select("*").execute()
-        print("Connection successful:", response)
+        response = get_db().table("outlets").select("*").limit(1).execute()
+        print(f"Connection successful ({len(response.data)} sample row)")
+        return True
     except Exception as e:
         print("Error connecting to the database:", e)
-
-
-
-
-
+        return False

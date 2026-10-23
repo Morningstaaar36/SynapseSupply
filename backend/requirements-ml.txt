@@ -1,0 +1,6 @@
+-r requirements.txt
+torch
+scikit-learn
+matplotlib
+seaborn
+jupyter

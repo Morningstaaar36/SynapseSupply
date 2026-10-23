@@ -1,5 +1,6 @@
 supabase
+python-dotenv
 pandas
-pulp
+numpy
 langgraph
-dotenv
+pulp
