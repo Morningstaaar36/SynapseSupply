@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" width="1200" height="560" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="arrowAccent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#38bdf8"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="560" rx="18" fill="url(#bg)"/>
+
+  <text x="48" y="64" font-size="34" font-weight="700" fill="#f8fafc">SynapseSupply</text>
+  <text x="48" y="94" font-size="16" fill="#94a3b8">Demand forecasting and warehouse-to-outlet allocation for Bangladeshi retail</text>
+
+  <!-- column headers -->
+  <g font-size="12" font-weight="600" letter-spacing="1.5" fill="#64748b">
+    <text x="48" y="148">DATA</text>
+    <text x="448" y="148">FORECASTING  ·  PYTORCH</text>
+    <text x="848" y="148">COORDINATION  ·  NEXT</text>
+  </g>
+
+  <!-- DATA column -->
+  <g>
+    <rect x="48" y="164" width="304" height="132" rx="12" fill="#0b1220" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="68" y="194" font-size="17" font-weight="600" fill="#f1f5f9">Synthetic data generator</text>
+    <text x="68" y="220" font-size="13" fill="#94a3b8">3 years of daily records</text>
+    <text x="68" y="240" font-size="13" fill="#94a3b8">30 outlets · 8 regions · 10 product lines</text>
+    <text x="68" y="260" font-size="13" fill="#94a3b8">Eid, Ramadan, hartal, monsoon, load-shedding</text>
+    <text x="68" y="280" font-size="13" fill="#94a3b8">328,800 outlet rows · 10,960 warehouse rows</text>
+
+    <rect x="48" y="326" width="304" height="132" rx="12" fill="#0b1220" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="68" y="356" font-size="17" font-weight="600" fill="#f1f5f9">PostgreSQL on Supabase</text>
+    <text x="68" y="382" font-size="13" fill="#94a3b8">warehouses · warehouse_snapshots · outlets</text>
+    <text x="68" y="402" font-size="13" fill="#94a3b8">products · allocation_requests / _items</text>
+    <text x="68" y="422" font-size="13" fill="#94a3b8">allocations with a JSONB negotiation_log</text>
+    <text x="68" y="442" font-size="13" fill="#94a3b8">Paginated export back to training CSVs</text>
+  </g>
+
+  <!-- FORECASTING column -->
+  <g>
+    <rect x="448" y="164" width="304" height="132" rx="12" fill="#0b1220" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="468" y="194" font-size="17" font-weight="600" fill="#f1f5f9">Outlet demand model</text>
+    <text x="468" y="220" font-size="13" fill="#94a3b8">Next-7-day demand per outlet and product</text>
+    <text x="468" y="240" font-size="13" fill="#94a3b8">26 features · cyclical time encoding</text>
+    <text x="468" y="266" font-size="22" font-weight="700" fill="#38bdf8">R² 0.853</text>
+    <text x="570" y="266" font-size="13" fill="#94a3b8">MAE 98.9 units</text>
+
+    <rect x="448" y="326" width="304" height="132" rx="12" fill="#0b1220" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="468" y="356" font-size="17" font-weight="600" fill="#f1f5f9">Warehouse model</text>
+    <text x="468" y="382" font-size="13" fill="#94a3b8">Shared trunk, two heads: optimal inventory</text>
+    <text x="468" y="402" font-size="13" fill="#94a3b8">level and feasible maximum supply</text>
+    <text x="468" y="428" font-size="22" font-weight="700" fill="#38bdf8">R² 0.884</text>
+    <text x="570" y="428" font-size="13" fill="#94a3b8">both targets, held-out test set</text>
+  </g>
+
+  <!-- COORDINATION column (dashed = in progress) -->
+  <g>
+    <rect x="848" y="164" width="304" height="132" rx="12" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="7 6"/>
+    <text x="868" y="194" font-size="17" font-weight="600" fill="#f1f5f9">Outlet and warehouse agents</text>
+    <text x="868" y="220" font-size="13" fill="#94a3b8">LangGraph negotiation over each</text>
+    <text x="868" y="240" font-size="13" fill="#94a3b8">allocation request, with the full</text>
+    <text x="868" y="260" font-size="13" fill="#94a3b8">reasoning trace stored per decision</text>
+
+    <rect x="848" y="326" width="304" height="132" rx="12" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="7 6"/>
+    <text x="868" y="356" font-size="17" font-weight="600" fill="#f1f5f9">Allocation optimizer</text>
+    <text x="868" y="382" font-size="13" fill="#94a3b8">PuLP linear program: split limited supply</text>
+    <text x="868" y="402" font-size="13" fill="#94a3b8">across outlets against transport cost,</text>
+    <text x="868" y="422" font-size="13" fill="#94a3b8">lead time and storage limits</text>
+  </g>
+
+  <!-- arrows -->
+  <g stroke="#94a3b8" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+    <path d="M352 230 H446"/>
+    <path d="M352 392 H446"/>
+    <path d="M200 296 V324" marker-end="none"/>
+  </g>
+  <g stroke="#a78bfa" stroke-width="1.8" fill="none" stroke-dasharray="6 5" marker-end="url(#arrow)">
+    <path d="M752 230 H846"/>
+    <path d="M752 392 H846"/>
+    <path d="M1000 296 V324"/>
+  </g>
+
+  <!-- legend -->
+  <g font-size="13" fill="#94a3b8">
+    <rect x="48" y="500" width="30" height="16" rx="4" fill="none" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="90" y="513">Implemented</text>
+    <rect x="200" y="500" width="30" height="16" rx="4" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="5 4"/>
+    <text x="242" y="513">Next</text>
+    <text x="1152" y="513" text-anchor="end">Metrics are from the notebook's test split on synthetic data</text>
+  </g>
+</svg>
